@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <script type="text/javascript" src="d3.min.js"></script>
+    <script type="text/javascript" src="prettyreqs.js"></script>
+    <style>
+      div.tooltip {
+        position: absolute;
+        text-align: center;
+        padding: 10px;
+        font: 16px sans-serif;
+        background: black;
+        color: white;
+        border: 0px;
+        border-radius: 8px;
+        margin-left: 25px;
+        margin-top: 45px;
+        pointer-events: none;
+      }
+      body {
+          margin: 0;
+      }
+      g {
+          cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div>
+      <div id="navbar">
+        <input type="file" id="upload" style="display:none;">
+        <button id="uploadCover">Upload</button>
+        <button id="update">Update</button>
+        <button id="download">Download</button>
+      </div>
+      <div id="content">
+        <textarea id="textarea" name="textarea" rows="30" cols="45"></textarea>
+      </div>
+    </div>
+  </body>
+</html>
