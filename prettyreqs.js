@@ -1,4 +1,5 @@
-var upload, textarea, textFile, download, allNodes, allLinks;
+var upload, textarea, update, textFile, download, allNodes, allLinks, simulation,
+    svg, node, link, g;
 
 window.onload = function() {
     // ======================================================================
@@ -6,9 +7,10 @@ window.onload = function() {
     // ======================================================================
 
     upload = document.getElementById("upload");
+    update = document.getElementById("update");
+    download = document.getElementById("download");
     textarea = document.getElementById("textarea");
     textFile = null;
-    download = document.getElementById("download");
     allNodes = [];
     allLinks = [];
 
@@ -29,7 +31,7 @@ window.onload = function() {
             var reader = new FileReader();
             reader.onload = function(e) {
                 textarea.value = reader.result;
-                processText(reader.result);
+                restart();
             };
             reader.readAsText(uploadedFile);
         }
@@ -45,11 +47,17 @@ window.onload = function() {
     });
 
     // ======================================================================
+    // UPDATE
+    // ======================================================================
+
+    update.addEventListener("click", restart);
+
+    // ======================================================================
     // DOWNLOAD
     // ======================================================================
 
     // function to make the text file
-    var makeTextFile = function(text) {
+    function makeTextFile(text) {
         var data = new Blob([text], {"type": "text/plain"});
         if (textFile !== null) {
             window.URL.revokeObjectURL(textFile);
@@ -77,9 +85,11 @@ window.onload = function() {
     // ======================================================================
 
     // function to process text in file
-    var processText = function(text) {
+    function processText(text) {
         var splitList = text.split("\n");
         var field, value;
+        allNodes = [];
+        allLinks = [];
         for (var i = 0; i < splitList.length; i++) {
             if (splitList[i] !== "") {
                 field = splitList[i].match(/\s*(.*)\s*:\s*.*\s*/);
@@ -87,14 +97,13 @@ window.onload = function() {
                 if (field[1] !== null && value[1] !== null && value[1] !== "") {
                     field = field[1];
                     value = value[1];
-                    console.log(field, value);
                     if (field === "id") {
                         allNodes.push({[field]: value});
                     }
-                    else if (field == "links") {
+                    else if (field === "links") {
                         values = value.split(/,\s*/);
                         for (var j = 0; j < values.length; j++) {
-                            allLinks.push({target: allNodes.slice(-1)[0].id, source: values[j]});
+                            allLinks.push({'source': getNode(values[j]), 'target': getNode(allNodes.slice(-1)[0].id)});
                         }
                     }
                     else {
@@ -104,8 +113,69 @@ window.onload = function() {
             }
         }
         console.log(allNodes, allLinks);
-        d3.select("svg").remove();
-        displayGraph();
     };
+
+    function getNode(id) {
+        for (var nodenum = 0; nodenum < allNodes.length; nodenum++) {
+            if (allNodes[nodenum].id === id) {
+                return allNodes[nodenum];
+            }
+        }
+        return null;
+    }
+
+    // ======================================================================
+    // GRAPH
+    // ======================================================================
+
+    function ticked() {
+        node.attr("cx", function(d) { return d.x; })
+          .attr("cy", function(d) { return d.y; })
+
+        link.attr("x1", function(d) { return d.source.x; })
+          .attr("y1", function(d) { return d.source.y; })
+          .attr("x2", function(d) { return d.target.x; })
+          .attr("y2", function(d) { return d.target.y; });
+    }
+
+    function restart() {
+      processText(textarea.value);
+
+      // Apply the general update pattern to the nodes.
+      node = node.data(allNodes);
+      node.exit().remove();
+      node = node.enter().append("circle")
+          .attr("fill", function(d) { return color(d.id); })
+          .attr("r", 8)
+          .attr("id", function(d) { return d.id })
+          .merge(node);
+
+      // Apply the general update pattern to the links.
+      link = link.data(allLinks);
+      link.exit().remove();
+      link = link.enter().append("line").merge(link);
+
+      // Update and restart the simulation.
+      simulation.nodes(allNodes);
+      simulation.force("link").links(allLinks);
+      simulation.alpha(0.5).restart();
+    }
+
+    svg = d3.select("svg"),
+        width = +svg.attr("width"),
+        height = +svg.attr("height"),
+        color = d3.scaleOrdinal(d3.schemeCategory20c);
+
+    simulation = d3.forceSimulation(allNodes)
+        .force("charge", d3.forceManyBody().strength(-1000))
+        .force("link", d3.forceLink(allLinks).distance(200))
+        .force("x", d3.forceX())
+        .force("y", d3.forceY())
+        .alphaTarget(1)
+        .on("tick", ticked);
+
+    g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
+    link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link");
+    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 };
 

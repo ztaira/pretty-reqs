@@ -1,0 +1,21 @@
+UPLOAD TESTS:
+PASS User can upload a file by clicking the upload button
+PASS Uploading a file refreshes the svg and reads in the graph described in the file
+PASS Uploading a non-text file leads to the message 'File Not Supported' in the textarea
+
+UPDATE TESTS:
+PASS User can edit the textarea
+PASS Clicking the update button refreshes the svg with the contents of the textarea
+PASS The SVG is accurate
+
+DOWNLOAD TESTS:
+PASS The user can download the text in the textarea via the download button
+PASS The downloaded text is accurate
+
+BUGS:
+1) Nodes cannot link to nodes later on in the text list
+2) Nodes can be added with duplicate id's
+    Not take anything until the next id?
+
+POSSIBLE BUGFIXES:
+1, 2) Create allNodes in first pass, then add other data as appropriate
