@@ -12,10 +12,8 @@ DOWNLOAD TESTS:
 PASS The user can download the text in the textarea via the download button
 PASS The downloaded text is accurate
 
-BUGS:
+FIXED BUGS:
 1) Nodes cannot link to nodes later on in the text list
+    Fixed by creating all the nodes in pass 1, and then adding data
 2) Nodes can be added with duplicate id's
-    Not take anything until the next id?
 
-POSSIBLE BUGFIXES:
-1, 2) Create allNodes in first pass, then add other data as appropriate
