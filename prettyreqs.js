@@ -104,6 +104,9 @@ window.onload = function() {
                     else if (field === "links") {
                         values = value.split(/,\s*/);
                         for (var j = 0; j < values.length; j++) {
+                            if (getNode(values[j]) === null) {
+                                allNodes.push({'id': values[j]});
+                            }
                             allLinks.push({'target': getNode(values[j]), 'source': getNode(allNodes[currentNode].id)});
                         }
                     }
@@ -203,7 +206,7 @@ window.onload = function() {
     color = d3.scaleOrdinal(d3.schemeCategory20c);
 
     simulation = d3.forceSimulation(allNodes)
-        .force("charge", d3.forceManyBody().strength(-50))
+        .force("charge", d3.forceManyBody().strength(-200))
         .force("link", d3.forceLink(allLinks).distance(100))
         .force("x", d3.forceX())
         .force("y", d3.forceY())
