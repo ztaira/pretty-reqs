@@ -1,18 +1,13 @@
-var upload, textarea, update, textFile, download, allNodes, allLinks, simulation,
-    svg, node, link, g;
-
 window.onload = function() {
     // ======================================================================
     // VARIABLES
     // ======================================================================
 
-    upload = document.getElementById("upload");
-    update = document.getElementById("update");
-    download = document.getElementById("download");
-    textarea = document.getElementById("textarea");
-    textFile = null;
-    allNodes = [];
-    allLinks = [];
+    var upload = document.getElementById("upload");
+    var update = document.getElementById("update");
+    var download = document.getElementById("download");
+    var textarea = document.getElementById("textarea");
+    var textFile = null;
 
     // ======================================================================
     // UPLOAD
@@ -85,38 +80,42 @@ window.onload = function() {
     // ======================================================================
 
     // function to process text in file
-    function processText(text) {
-        var splitList = text.split("\n");
-        var field, value;
-        var currentNode = 0;
-        allNodes = createAllNodes(splitList);
-        allLinks = [];
-        for (var i = 0; i < splitList.length; i++) {
-            if (splitList[i] !== "") {
-                field = splitList[i].match(/\s*(.*)\s*:\s*.*\s*/);
-                value = splitList[i].match(/\s*.*\s*:\s*(.*)\s*/);
-                if (field[1] !== null && value[1] !== null && value[1] !== "") {
-                    field = field[1];
-                    value = value[1];
-                    if (field === "id") {
-                        currentNode = getNodeIndex(value);
-                    }
-                    else if (field === "links") {
-                        values = value.split(/,\s*/);
-                        for (var j = 0; j < values.length; j++) {
-                            if (getNode(values[j]) === null) {
-                                allNodes.push({'id': values[j]});
-                            }
-                            allLinks.push({'target': getNode(values[j]), 'source': getNode(allNodes[currentNode].id)});
+    function processText() {
+        var textarea = document.getElementById('textarea');
+        if (textarea !== null) {
+            var splitList = textarea.value.split('\n');
+            var field, value, values;
+            var currentNode = 0;
+            var allNodes = createAllNodes(splitList);
+            var allLinks = [];
+            for (var i = 0; i < splitList.length; i++) {
+                if (splitList[i] !== "" && splitList[i].includes(':')) {
+                    field = splitList[i].match(/\s*(.*)\s*:\s*.*\s*/);
+                    value = splitList[i].match(/\s*.*\s*:\s*(.*)\s*/);
+                    if (field[1] !== null && value[1] !== null && value[1] !== "") {
+                        field = field[1];
+                        value = value[1];
+                        if (field === "id") {
+                            currentNode = getNodeIndex(value, allNodes);
                         }
-                    }
-                    else {
-                        allNodes[currentNode][field] = value;
+                        else if (field === "links") {
+                            values = value.split(/,\s*/);
+                            for (var j = 0; j < values.length; j++) {
+                                if (getNode(values[j], allNodes) === null) {
+                                    allNodes.push({'id': values[j]});
+                                }
+                                allLinks.push({'linkID': allLinks.length, 'target': getNode(values[j], allNodes), 'source': getNode(allNodes[currentNode].id, allNodes)});
+                            }
+                        }
+                        else {
+                            allNodes[currentNode][field] = value;
+                        }
                     }
                 }
             }
+            return {'nodes': setNodeDefaults(allNodes), 'links': allLinks};
         }
-        console.log(allNodes, allLinks);
+        return {'nodes': [], 'links': []};
     }
 
     // creates allNodes based on the id's in the text
@@ -125,7 +124,7 @@ window.onload = function() {
         var nodeIDs = [];
         var field, value;
         for (var i = 0; i < splitList.length; i++) {
-            if (splitList[i] !== "") {
+            if (splitList[i] !== "" && splitList[i].includes(':')) {
                 field = splitList[i].match(/\s*(.*)\s*:\s*.*\s*/);
                 value = splitList[i].match(/\s*.*\s*:\s*(.*)\s*/);
                 if (field[1] !== null && value[1] !== null && value[1] !== "") {
@@ -142,79 +141,71 @@ window.onload = function() {
     }
 
     // gets the first node with the id given
-    function getNode(id) {
-        for (var nodenum = 0; nodenum < allNodes.length; nodenum++) {
-            if (allNodes[nodenum].id === id) {
-                return allNodes[nodenum];
+    function getNode(id, nodes) {
+        for (var nodenum = 0; nodenum < nodes.length; nodenum++) {
+            if (nodes[nodenum].id === id) {
+                return nodes[nodenum];
             }
         }
         return null;
     }
 
     // gets the index of the first node with the id given
-    function getNodeIndex(id) {
-        for (var nodenum = 0; nodenum < allNodes.length; nodenum++) {
-            if (allNodes[nodenum].id === id) {
+    function getNodeIndex(id, nodes) {
+        for (var nodenum = 0; nodenum < nodes.length; nodenum++) {
+            if (nodes[nodenum].id === id) {
                 return nodenum;
             }
         }
         return null;
     }
 
+    // function to set node defaults
+    function setNodeDefaults(nodes) {
+        for (var node = 0; node < nodes.length; node++) {
+            if (nodes[node].x === undefined) nodes[node].x = 0 ;
+            if (nodes[node].y === undefined) nodes[node].y = 0 ;
+            if (nodes[node].r === undefined) nodes[node].r = 10 ;
+            if (nodes[node].color === undefined) {
+                if (nodes[node].r < 24) {
+                    nodes[node].color = 'silver';
+                }
+                else {
+                    nodes[node].color = 'dimgrey';
+                }
+            };
+        }
+        return nodes;
+    }
+
     // ======================================================================
     // GRAPH
     // ======================================================================
 
-    // function to be called on tick
-    function ticked() {
-        node.attr("cx", function(d) { return d.x; })
-          .attr("cy", function(d) { return d.y; });
-
-        link.attr("x1", function(d) { return d.source.x; })
-          .attr("y1", function(d) { return d.source.y; })
-          .attr("x2", function(d) { return d.target.x; })
-          .attr("y2", function(d) { return d.target.y; });
-    }
-
-    // function to restart the simulation
+    // function to empty the current svg and then add nodes based on what's
+    // in the textarea
     function restart() {
-      processText(textarea.value);
-
-      // Apply the general update pattern to the nodes.
-      node = node.data(allNodes);
-      node.exit().remove();
-      node = node.enter().append("circle")
-          .attr("fill", function(d) { return color(d.id); })
-          .attr("r", 8)
-          .attr("id", function(d) { return d.id; })
-          .merge(node);
-
-      // Apply the general update pattern to the links.
-      link = link.data(allLinks);
-      link.exit().remove();
-      link = link.enter().append("line").merge(link);
-
-      // Update and restart the simulation.
-      simulation.nodes(allNodes);
-      simulation.force("link").links(allLinks);
-      simulation.alpha(1).restart();
+      var items = processText(textarea.value);
+      var links = document.getElementById("links");
+      var nodes = document.getElementById("nodes");
+      links.innerHTML = '';
+      nodes.innerHTML = '';
+      for (var item = 0; item<items.nodes.length; item++) {
+          var circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', items.nodes[item].x);
+          circle.setAttribute('cy', items.nodes[item].y);
+          circle.setAttribute('r', items.nodes[item].r);
+          circle.setAttribute('fill', items.nodes[item].color);
+          nodes.append(circle);
+      }
+      for (var item = 0; item<items.links.length; item++) {
+          var line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+          line.setAttribute('x1', items.links[item].source.x);
+          line.setAttribute('y1', items.links[item].source.y);
+          line.setAttribute('x2', items.links[item].target.x);
+          line.setAttribute('y2', items.links[item].target.y);
+          links.append(line);
+      }
     }
-
-    svg = d3.select("svg");
-    width = +svg.attr("width");
-    height = +svg.attr("height");
-    color = d3.scaleOrdinal(d3.schemeCategory20c);
-
-    simulation = d3.forceSimulation(allNodes)
-        .force("charge", d3.forceManyBody().strength(-200))
-        .force("link", d3.forceLink(allLinks).distance(100))
-        .force("x", d3.forceX())
-        .force("y", d3.forceY())
-        .alphaTarget(1)
-        .on("tick", ticked);
-
-    g = svg.append("g").attr("transform", "translate(" + width / 2 + "," + height / 2 + ")");
-    link = g.append("g").attr("stroke", "#000").attr("stroke-width", 1.5).selectAll(".link");
-    node = g.append("g").attr("stroke", "#fff").attr("stroke-width", 1.5).selectAll(".node");
 };
 

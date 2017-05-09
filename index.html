@@ -1,11 +1,14 @@
 <!DOCTYPE html>
 <html>
   <head>
-    <script type="text/javascript" src="d3.min.js"></script>
     <script type="text/javascript" src="prettyreqs.js"></script>
     <style>
       body {
           margin: 0;
+      }
+      line {
+          stroke: rgb(0, 0, 0);
+          stroke-width: 1.5px;
       }
       g {
           cursor: pointer;
@@ -15,14 +18,19 @@
   <body>
     <div>
       <div id="navbar">
-        <input type="file" id="upload" style="display:none;">
-        <button id="uploadCover">Upload</button>
+        <div>
+            <input type="file" id="upload" style="display:none;">
+            <button id="uploadCover">Upload</button>
+        </div>
         <button id="update">Update</button>
         <button id="download">Download</button>
       </div>
       <div id="content">
         <textarea id="textarea" name="textarea" rows="30" cols="45"></textarea>
-        <svg id='graph' height='400' width='600'></svg>
+        <svg id='graph' height='400' width='600'>
+          <g id='links'></g>
+          <g id='nodes'></g>
+        </svg>
       </div>
     </div>
   </body>
