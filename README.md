@@ -4,7 +4,7 @@ plainjs directory, and the react version components are in the react directory.
 
 ### Usage:
 - Navigate to https://ztaira14.github.io/pretty-reqs/ to try it out
-- Upload or paste in the contents of test.txt for a demonstration
+- Upload or paste in the contents of examplegraph.txt for a demonstration
 
 ### Features:
 - Easy creation of complex node graphs via human-readable, human-editable plain text
@@ -26,6 +26,7 @@ plainjs directory, and the react version components are in the react directory.
 - react/.....................The react version components
 - diagrams/..................Relevant diagrams and images
 - tests.txt..................The intended functionality tests
+- examplegraph.txt...........An example graph
 ```
 
 ### Example Output:

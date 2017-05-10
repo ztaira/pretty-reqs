@@ -1,0 +1,43 @@
+id: node1
+x: 10
+y: 10
+
+id: node2
+x: 30
+y: 30
+r: 20
+
+id: node3
+x: 60
+y: 60
+r: 30
+
+id: node4
+x: 100
+y: 100
+r: 40
+color: rgb(0, 0, 0)
+
+id: node5
+x: 100
+y: 100
+r: 20
+color: firebrick
+
+id: node6
+x: 150
+y: 150
+links: node7
+
+id: node7
+x: 170
+y: 170
+links: node8, node9
+
+id: node8
+x: 170
+y: 130
+
+id: node9
+x: 190
+y: 150
