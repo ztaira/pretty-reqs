@@ -5,6 +5,11 @@
     <style>
       body {
           margin: 0;
+          padding: 0;
+          font-family: sans-serif;
+      }
+      input {
+          display: none;
       }
       line {
           stroke: rgb(0, 0, 0);
@@ -13,21 +18,35 @@
       g {
           cursor: pointer;
       }
+      div {
+          text-align: center;
+          padding: 10px;
+      }
+      #uploadCover {
+          width: 604px;
+      }
+      button {
+          width: 300px;
+          height: 25px;
+      }
+      svg {
+          border: 1px solid rgb(0, 0, 0);
+      }
     </style>
   </head>
   <body>
     <div>
       <div id="navbar">
         <div>
-            <input type="file" id="upload" style="display:none;">
+            <input type="file" id="upload">
             <button id="uploadCover">Upload</button>
         </div>
         <button id="update">Update</button>
         <button id="download">Download</button>
       </div>
       <div id="content">
-        <textarea id="textarea" name="textarea" rows="30" cols="45"></textarea>
-        <svg id='graph' height='400' width='600'>
+        <textarea id="textarea" name="textarea" rows="30" cols="30"></textarea>
+        <svg id='graph' height='394' width='394'>
           <g id='links'></g>
           <g id='nodes'></g>
         </svg>
