@@ -1,6 +1,6 @@
 # pretty-reqs
 Hack-a-Week 18: a plain text graph editor. The plain js version is in the
-`plainjs` directory, and the react version components are in the react `directory`.
+plainjs directory, and the react version components are in the react directory.
 
 ### Usage:
 - Navigate to https://ztaira14.github.io/pretty-reqs/ to try it out
@@ -23,8 +23,13 @@ Hack-a-Week 18: a plain text graph editor. The plain js version is in the
 ```
 - README.md..................This readme file
 - plainjs/...................The plain javascript version
-- react/.....................The react version components, taken directly from the src folder of create-react-app
+- react/.....................The react version components
 - diagrams/..................Relevant diagrams and images
+- tests.txt..................The intended functionality tests
 ```
-### Example Output:
 
+### Example Output:
+![alt text](https://github.com/ztaira14/pretty-reqs/blob/master/diagrams/prettyreqs.png "On Chrome")
+
+### Why aren't there any automated tests?
+- :(
